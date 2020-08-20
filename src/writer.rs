@@ -45,6 +45,15 @@ impl<W: Write> InflateWriter<W> {
     }
 }
 
+/// Denocord/denoflate specific implementation that automatically clears the buffer, keeping the decompression context.
+impl InflateWriter<Vec<u8>> {
+    pub fn finish_mut(&mut self) -> io::Result<Vec<u8>> {
+        self.flush()?;
+        let writer: Vec<u8> = std::mem::replace(&mut self.writer, Vec::new());
+        Ok(writer)
+    }
+}
+
 fn update<'a>(inflater: &'a mut InflateStream, buf: &[u8]) -> io::Result<(usize, &'a [u8])> {
     match inflater.update(buf) {
         Ok(res) => Ok(res),
