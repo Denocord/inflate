@@ -1,6 +1,6 @@
 use std::io;
 use std::io::{Error, ErrorKind, Write};
-use crate::{InflateStream, State};
+use crate::InflateStream;
 
 /// A DEFLATE decoder.
 ///
@@ -42,19 +42,6 @@ impl<W: Write> InflateWriter<W> {
     pub fn finish(mut self) -> io::Result<W> {
         self.flush()?;
         Ok(self.writer)
-    }
-
-    pub fn reset(&mut self) {
-        if let Some(state) = &self.inflater.state {
-            match state {
-                State::ZlibMethodAndFlags => {
-                    self.inflater.reset_to_zlib();
-                }
-                _ => {
-                    self.inflater.reset();
-                }
-            }
-        }
     }
 }
 
